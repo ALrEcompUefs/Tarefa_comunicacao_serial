@@ -5,7 +5,7 @@
 // Pinos dos perifericos
 
 const uint8_t LED_R=13, LED_B=12, LED_G=11;
-const uint8_t BOTAO_A=5;BOTAO_B=6;
+const uint8_t BOTAO_A=5;BOTAO_B=6,BOTAO_JYK=22;
 
 // protótipos de funções
 void inicializar_leds();
@@ -47,6 +47,14 @@ void inicializar_botoes(){
     gpio_init(BOTAO_A);
     gpio_set_dir(BOTAO_A,GPIO_IN);
     gpio_pull_up(BOTAO_A);
+    //botão B
+    gpio_init(BOTAO_B);
+    gpio_set_dir(BOTAO_B,GPIO_IN);
+    gpio_pull_up(BOTAO_B);
+    //botão C
+    gpio_init(BOTAO_JYK);
+    gpio_set_dir(BOTAO_JYK,GPIO_IN);
+    gpio_pull_up(BOTAO_JYK);
 }
 
 
