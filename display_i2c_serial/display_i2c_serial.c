@@ -48,3 +48,48 @@ void inicializar_botoes(){
     gpio_set_dir(BOTAO_A,GPIO_IN);
     gpio_pull_up(BOTAO_A);
 }
+
+
+/*
+|   Função set_rgb
+|   Ativa a cor rgb de acordo ao parâmetro cor
+|   char cor: 'R'= vermelho 'G' = verde 'B' = azul 'W' = branco 'Y' = amarelo '-' apagar  
+*/
+void set_rgb(char cor){
+    switch (cor)
+    {
+    case 'R':
+        gpio_put(LED_R,1);
+        gpio_put(LED_G,0);
+        gpio_put(LED_B,0);
+        break;
+    case 'G':
+        gpio_put(LED_R,0);
+        gpio_put(LED_G,1);
+        gpio_put(LED_B,0);
+        break;
+    case 'B':
+        gpio_put(LED_R,0);
+        gpio_put(LED_G,0);
+        gpio_put(LED_B,1);
+        break;
+    case 'W':
+        gpio_put(LED_R,1);
+        gpio_put(LED_G,1);
+        gpio_put(LED_B,1);
+        break;
+    case 'Y':
+        gpio_put(LED_R,1);
+        gpio_put(LED_G,1);
+        gpio_put(LED_B,0);
+        break;
+    case '-':
+        gpio_put(LED_R,0);
+        gpio_put(LED_G,0);
+        gpio_put(LED_B,0);
+        break;
+    default:
+        printf("Caractere invalido!!\n informe R,G,B,W,Y ou -\n");
+        break;
+    }
+}
