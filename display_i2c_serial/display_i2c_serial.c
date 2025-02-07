@@ -2,31 +2,45 @@
 #include "pico/stdlib.h"
 #include "pico/bootrom.h"
 #include "pico/time.h"
+#include "hardware/pio.h"
+#include "inc/ssd1306.h"
+#include "ws2812.h"
 
 // Pinos dos perifericos
 const uint8_t LED_R=13, LED_B=12, LED_G=11;
-const uint8_t BOTAO_A=5;BOTAO_B=6,BOTAO_JYK=22;
+const uint8_t BOTAO_A=5,BOTAO_B=6,BOTAO_JYK=22;
 
 // Variavél para registro de tempo e controle de bounce da interrupção
 static volatile uint32_t tempo_anterior = 0;
-
+// Variável de controle das leds
+static volatile bool led_g_on=false,led_b_on=false;
 // protótipos de funções
 void inicializar_leds();
 void inicializar_botoes();
-void set_rgb(char cor);
+void set_rgb(char cor,bool ativa);
 static void gpio_irq_handler(uint gpio, uint32_t events);
 
 int main()
 {
     stdio_init_all();
 
+    // incializa PIO para utilizar matriz de leds
+    PIO pio = pio0;
+    uint sm = configurar_matriz(pio);
+    configurar_numero();
+
+    // Configura GPIO para os leds e botões
+    inicializar_leds();
+    inicializar_botoes();
+    //cria gatilhos de interrupções para os os botões
+    gpio_set_irq_enabled_with_callback(BOTAO_A,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
+    gpio_set_irq_enabled_with_callback(BOTAO_B,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
+    gpio_set_irq_enabled_with_callback(BOTAO_JYK,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
+
     while (true) {
-        printf("Hello, world!\n");
         sleep_ms(1000);
     }
 }
-
-
 
 /*
 |   Função inicializar_leds
@@ -63,36 +77,25 @@ void inicializar_botoes(){
 
 /*
 |   Função set_rgb
-|   Ativa a cor rgb de acordo ao parâmetro cor
-|   char cor: 'R'= vermelho 'G' = verde 'B' = azul 'W' = branco 'Y' = amarelo '-' apagar  
+|   Ativa ou desativa a cor rgb de acordo ao parâmetro cor e o paramêtro on
+|   char cor: 'R'= vermelho 'G' = verde 'B' = azul 'W' = branco '-' apagar  
 */
-void set_rgb(char cor){
+void set_rgb(char cor,bool ativa){
     switch (cor)
     {
     case 'R':
-        gpio_put(LED_R,1);
-        gpio_put(LED_G,0);
-        gpio_put(LED_B,0);
+        gpio_put(LED_R,ativa);
         break;
     case 'G':
-        gpio_put(LED_R,0);
-        gpio_put(LED_G,1);
-        gpio_put(LED_B,0);
+        gpio_put(LED_G,ativa);
         break;
     case 'B':
-        gpio_put(LED_R,0);
-        gpio_put(LED_G,0);
-        gpio_put(LED_B,1);
+        gpio_put(LED_B,ativa);
         break;
     case 'W':
-        gpio_put(LED_R,1);
-        gpio_put(LED_G,1);
-        gpio_put(LED_B,1);
-        break;
-    case 'Y':
-        gpio_put(LED_R,1);
-        gpio_put(LED_G,1);
-        gpio_put(LED_B,0);
+        gpio_put(LED_R,ativa);
+        gpio_put(LED_G,ativa);
+        gpio_put(LED_B,ativa);
         break;
     case '-':
         gpio_put(LED_R,0);
@@ -100,26 +103,31 @@ void set_rgb(char cor){
         gpio_put(LED_B,0);
         break;
     default:
-        printf("Caractere invalido!!\n informe R,G,B,W,Y ou -\n");
+        printf("Caractere invalido!!\n informe R,G,B,W ou -\n");
         break;
     }
 }
 
 static void gpio_irq_handler(uint gpio, uint32_t events){
     // obtém tempo atual da execução do programa
-    uint32_t tempo_atual = tu_us_since_boot(get_absolute_time());
+    uint32_t tempo_atual = to_us_since_boot(get_absolute_time());
     // com o botão pressionado por pelo menos 200ms
     if(tempo_atual-tempo_anterior > 200000){
         tempo_anterior= tempo_atual;
         // executa tratamento da interrupção
         if(gpio == BOTAO_A){
-
+            //atualiza variável da led
+            led_g_on = !led_g_on;
+            // configura a led verde
+            set_rgb('G',led_g_on);
         }
         else if(gpio == BOTAO_B){
-
+            led_b_on = !led_b_on;
+            // configura a led azul
+            set_rgb('B',led_b_on);
         }
         else if(gpio == BOTAO_JYK){
-
+            reset_usb_boot(0,0);
         }
     }
 }
