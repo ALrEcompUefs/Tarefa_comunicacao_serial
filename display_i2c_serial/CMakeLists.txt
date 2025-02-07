@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(display_i2c_serial display_i2c_serial.c )
+add_executable(display_i2c_serial display_i2c_serial.c inc/ssd1306.c)
 
 pico_set_program_name(display_i2c_serial "display_i2c_serial")
 pico_set_program_version(display_i2c_serial "0.1")
