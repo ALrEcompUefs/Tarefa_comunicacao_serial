@@ -5,6 +5,14 @@
 #include "hardware/pio.h"
 #include "inc/ssd1306.h"
 #include "ws2812.h"
+#include "hardware/i2c.h"
+#include "inc/font.h"
+
+// definições para uso do display oled integrado
+#define I2C_PORT i2c1
+#define I2C_SDA 14
+#define I2C_SCL 15
+#define endereco 0x3C
 
 // Pinos dos perifericos
 const uint8_t LED_R=13, LED_B=12, LED_G=11;
@@ -29,6 +37,9 @@ int main()
     uint sm = configurar_matriz(pio);
     configurar_numero();
 
+    // variável para leitura serial
+    char msg= '\0';
+
     // Configura GPIO para os leds e botões
     inicializar_leds();
     inicializar_botoes();
@@ -38,6 +49,13 @@ int main()
     gpio_set_irq_enabled_with_callback(BOTAO_JYK,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
 
     while (true) {
+        // se a conexão usb está garantida
+        if(stdio_usb_connected){
+            // leitura do caractere dafila
+            if (scanf("%c\n",&msg)==1){
+                printf("Caractere recebido:%c\n",msg);
+            }
+        }
         sleep_ms(1000);
     }
 }
