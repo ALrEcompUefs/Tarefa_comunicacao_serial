@@ -41,8 +41,8 @@ pico_set_program_name(display_i2c_serial "display_i2c_serial")
 pico_set_program_version(display_i2c_serial "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(display_i2c_serial 0)
-pico_enable_stdio_usb(display_i2c_serial 0)
+pico_enable_stdio_uart(display_i2c_serial 1)
+pico_enable_stdio_usb(display_i2c_serial 1)
 
 # Add the standard library to the build
 target_link_libraries(display_i2c_serial
