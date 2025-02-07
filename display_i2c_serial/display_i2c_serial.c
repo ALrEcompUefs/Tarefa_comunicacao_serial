@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/bootrom.h"
+#include "pico/time.h"
 
 // Pinos dos perifericos
-
 const uint8_t LED_R=13, LED_B=12, LED_G=11;
 const uint8_t BOTAO_A=5;BOTAO_B=6,BOTAO_JYK=22;
+
+// Variavél para registro de tempo e controle de bounce da interrupção
+static volatile uint32_t tempo_anterior = 0;
 
 // protótipos de funções
 void inicializar_leds();
@@ -99,5 +102,24 @@ void set_rgb(char cor){
     default:
         printf("Caractere invalido!!\n informe R,G,B,W,Y ou -\n");
         break;
+    }
+}
+
+static void gpio_irq_handler(uint gpio, uint32_t events){
+    // obtém tempo atual da execução do programa
+    uint32_t tempo_atual = tu_us_since_boot(get_absolute_time());
+    // com o botão pressionado por pelo menos 200ms
+    if(tempo_atual-tempo_anterior > 200000){
+        tempo_anterior= tempo_atual;
+        // executa tratamento da interrupção
+        if(gpio == BOTAO_A){
+
+        }
+        else if(gpio == BOTAO_B){
+
+        }
+        else if(gpio == BOTAO_JYK){
+
+        }
     }
 }
