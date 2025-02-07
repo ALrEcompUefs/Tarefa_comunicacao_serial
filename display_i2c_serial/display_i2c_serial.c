@@ -22,3 +22,29 @@ int main()
         sleep_ms(1000);
     }
 }
+
+
+
+/*
+|   Função inicializar_leds
+|   Configura os pinos da LED RGB
+*/
+void inicializar_leds(){
+    // led vermelha
+    gpio_init(LED_R);
+    gpio_set_dir(LED_R,GPIO_OUT);
+    // led verde
+    gpio_init(LED_G);
+    gpio_set_dir(LED_G,GPIO_OUT);
+    // led azul
+    gpio_init(LED_B);
+    gpio_set_dir(LED_B,GPIO_OUT);
+}
+
+
+void inicializar_botoes(){
+    //botão A
+    gpio_init(BOTAO_A);
+    gpio_set_dir(BOTAO_A,GPIO_IN);
+    gpio_pull_up(BOTAO_A);
+}
