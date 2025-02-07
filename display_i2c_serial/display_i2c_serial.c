@@ -22,12 +22,16 @@ const uint8_t BOTAO_A=5,BOTAO_B=6,BOTAO_JYK=22;
 static volatile uint32_t tempo_anterior = 0;
 // Variável de controle das leds
 static volatile bool led_g_on=false,led_b_on=false;
+
+// Inicializa a estrutura do display
+ssd1306_t ssd; 
+
 // protótipos de funções
 void inicializar_leds();
 void inicializar_botoes();
 void set_rgb(char cor,bool ativa);
 static void gpio_irq_handler(uint gpio, uint32_t events);
-
+void inicializar_display_oled();
 int main()
 {
     stdio_init_all();
@@ -39,16 +43,21 @@ int main()
 
     // variável para leitura serial
     char msg= '\0';
-
+    bool cor =true;
     // Configura GPIO para os leds e botões
     inicializar_leds();
     inicializar_botoes();
+    inicializar_display_oled();
     //cria gatilhos de interrupções para os os botões
     gpio_set_irq_enabled_with_callback(BOTAO_A,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
     gpio_set_irq_enabled_with_callback(BOTAO_B,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
     gpio_set_irq_enabled_with_callback(BOTAO_JYK,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
 
     while (true) {
+        ssd1306_fill(&ssd, !cor); // Limpa o display
+        cor = !cor;
+        ssd1306_draw_string(&ssd, "ALISSON", 20, 30); // Desenha uma string
+        ssd1306_send_data(&ssd); // Atualiza o display
         // se a conexão usb está garantida
         if(stdio_usb_connected){
             // leitura do caractere dafila
@@ -92,6 +101,24 @@ void inicializar_botoes(){
     gpio_pull_up(BOTAO_JYK);
 }
 
+void inicializar_display_oled(){
+    // I2C Initialisation. Using it at 400Khz.
+  i2c_init(I2C_PORT, 400 * 1000);
+
+  gpio_set_function(I2C_SDA, GPIO_FUNC_I2C); // Set the GPIO pin function to I2C
+  gpio_set_function(I2C_SCL, GPIO_FUNC_I2C); // Set the GPIO pin function to I2C
+  gpio_pull_up(I2C_SDA); // Pull up the data line
+  gpio_pull_up(I2C_SCL); // Pull up the clock line
+  //ssd1306_t ssd; // Inicializa a estrutura do display
+  ssd1306_init(&ssd, WIDTH, HEIGHT, false, endereco, I2C_PORT); // Inicializa o display
+  ssd1306_config(&ssd); // Configura o display
+  ssd1306_send_data(&ssd); // Envia os dados para o display
+
+  // Limpa o display. O display inicia com todos os pixels apagados.
+  ssd1306_fill(&ssd, false);
+  ssd1306_send_data(&ssd);
+
+}
 
 /*
 |   Função set_rgb
