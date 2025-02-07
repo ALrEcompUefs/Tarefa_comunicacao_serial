@@ -120,11 +120,15 @@ static void gpio_irq_handler(uint gpio, uint32_t events){
             led_g_on = !led_g_on;
             // configura a led verde
             set_rgb('G',led_g_on);
+            // Informe pelo monitor serial
+            printf("A led verde está com valor:%d\n",led_g_on);
         }
         else if(gpio == BOTAO_B){
             led_b_on = !led_b_on;
             // configura a led azul
             set_rgb('B',led_b_on);
+            // Informe pelo monitor serial
+            printf("A led azul está com valor:%d\n",led_b_on);
         }
         else if(gpio == BOTAO_JYK){
             reset_usb_boot(0,0);
