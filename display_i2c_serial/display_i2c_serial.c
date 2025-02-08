@@ -56,11 +56,12 @@ int main()
     while (true) {
         ssd1306_fill(&ssd, !cor); // Limpa o display
         cor = !cor;
-        ssd1306_draw_string(&ssd, "ALISSON", 20, 30); // Desenha uma string
+        ssd1306_draw_string(&ssd, "Alisson", 1, 8); // Desenha uma string
+        ssd1306_draw_string(&ssd, "RODrigues", 20, 20); // Desenha uma string
         ssd1306_send_data(&ssd); // Atualiza o display
         // se a conexão usb está garantida
         if(stdio_usb_connected){
-            // leitura do caractere dafila
+            // leitura do caractere da fila
             if (scanf("%c\n",&msg)==1){
                 printf("Caractere recebido:%c\n",msg);
             }
