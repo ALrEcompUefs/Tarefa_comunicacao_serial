@@ -8,6 +8,7 @@
 #include "hardware/i2c.h"
 #include "inc/font.h"
 #include "string.h"
+
 // definições para uso do display oled integrado
 #define I2C_PORT i2c1
 #define I2C_SDA 14
@@ -18,7 +19,7 @@
 const uint8_t LED_R=13, LED_B=12, LED_G=11;
 const uint8_t BOTAO_A=5,BOTAO_B=6,BOTAO_JYK=22;
 
-// Va´riavéis globais para desenho da matriz
+// Variavéis globais para desenho da matriz
 PIO pio;
 uint sm;
 
@@ -60,8 +61,9 @@ int main()
     gpio_set_irq_enabled_with_callback(BOTAO_JYK,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);
 
     while (true) {
-        // se a conexão usb está garantida
+        // atualiza display de leds
         atualizar_display(msg);
+        // se a conexão usb está garantida
         if(stdio_usb_connected){
             // leitura do caractere da fila
             if (scanf("%c\n",&msg)==1){
@@ -75,7 +77,7 @@ int main()
 
 /*
 |   Função inicializar_leds
-|   Configura os pinos da LED RGB
+|   Configura os pinos da LED RGB como saída
 */
 void inicializar_leds(){
     // led vermelha
@@ -89,7 +91,10 @@ void inicializar_leds(){
     gpio_set_dir(LED_B,GPIO_OUT);
 }
 
-
+/*
+|   Função de inicialização dos botões
+|   Configura os botões A,B e do joystick como entrada em modo Pull-up
+*/
 void inicializar_botoes(){
     //botão A
     gpio_init(BOTAO_A);
@@ -105,6 +110,11 @@ void inicializar_botoes(){
     gpio_pull_up(BOTAO_JYK);
 }
 
+/*
+|   Função inicialzar display oled
+|   Configura e inicializa o display oled ssd1306 para sua utilização
+|   A comunicação é feita utilizando i2c
+*/
 void inicializar_display_oled(){
     // I2C Initialisation. Using it at 400Khz.
   i2c_init(I2C_PORT, 400 * 1000);
@@ -157,6 +167,12 @@ void set_rgb(char cor,bool ativa){
     }
 }
 
+/*
+|   Função gpio_irq_handler
+|   Função de callback para tratamento de interrupção da GPIO
+|   Implementa um debouncer via software e controla o estado das leds azul e verde
+|   além de ativar o modo bootsel
+*/
 static void gpio_irq_handler(uint gpio, uint32_t events){
     // obtém tempo atual da execução do programa
     uint32_t tempo_atual = to_us_since_boot(get_absolute_time());
@@ -185,7 +201,11 @@ static void gpio_irq_handler(uint gpio, uint32_t events){
         atualizar_display('\0');
     }
 }
-
+/*
+|   Função atualizar_matriz
+|   Recebe um char como parâmetro e o converte para um inteiro equivalente.
+|   Se for um número de 0-9 o número é exibido na matriz, senão a matriz é apagada
+*/
 void atualizar_matriz(char chave){
     // verifica se é um número
     if(chave >='0' && chave <='9'){
@@ -198,7 +218,10 @@ void atualizar_matriz(char chave){
         apagar_matriz(pio,sm);
     }
 }
-
+/*
+|   Função atualizar_display
+|   Atualiza os dados exibidos no display oled
+*/
 void atualizar_display(char msg){
     printf("Entrei\n");
     // limpa o display
