@@ -123,4 +123,46 @@ Foram declaradas duas variáveis globais com modificador **static volatile** par
 
 Para facilitar o desenvolvimento na placa bitdoglab o botão do módulo joystick no pio 22 é utilizado para ativar o modo bootsel.
 
+## Estrutura do programa
+
+Descrevendo a estrutura geral do programa
+
+1. Importação das bibliotecas
+2. Definição das portas e endereços para o display oled
+3. Declaração dos pinos da GPIO dos périfericos
+4. Declaração de variáveis globais
+5. Declaração do protótipo de funções
+6. Função main
+7. Declaração de funções
+
+Descrevendo a função main temos:
+
+* Inicialização da entrada e saída padrão `stdio_init_all();`
+* Inicialização da matriz de leds
+* Inicialização dos périfericos leds e botões com a chaamada da funções de inicialização
+* Definição das rotinas de interupção para os botões `gpio_set_irq_enabled_with_callback(BOTAO_A,GPIO_IRQ_EDGE_FALL,true,&gpio_irq_handler);`
+* Super laço
+
+Dentro do laço tem-se:
+
+```c
+// atualiza display de leds
+        atualizar_display(msg);
+        // se a conexão usb está garantida
+        if(stdio_usb_connected){
+            // leitura do caractere da fila
+            if (scanf("%c\n",&msg)==1){
+                atualizar_matriz(msg);
+                printf("Caractere recebido:%c\n",msg);
+            }
+        }
+        sleep_ms(500);
+```
+
+Primeiro o display de leds é atualizado para exibir novas informações, em seguida é verificado se a porta serial está disponivél e caso esteja éf eita a leitura da porta serial e o caractere lido vai ser exibido na proxíma atualização do display oled. A função atualizar matriz é chamada passando como parâmetro o caractere lido, se for um número ele é exibido na matriz de leds e caso seja uma letra a matriz é apagada.
+
+Sempre que um botão for apertado ou um caractere for lido na porta serial a informação é impressa no monitor serial.
+
+Para entrar em modo bootsel basta apertar o botão do joystick.
+
 ## Vídeo
