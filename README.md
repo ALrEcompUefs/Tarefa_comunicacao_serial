@@ -44,7 +44,7 @@ Na figura abaixo está representado o diagrama do circuito montado no simulador 
 
 ## Display oled i2c
 
-Utilizando a biblioteca  **ssd1306** disponibilizada para o projeto é possível utilzar o display oled presente na placa bitdoglab para exibir textos com fonte maiúsculas por isso foi solicitado adicionar letras minúsculas ao arquivo **font.h**. 
+Utilizando a biblioteca  **ssd1306** disponibilizada para o projeto é possível utilzar o display oled presente na placa bitdoglab para exibir textos com fonte maiúsculas por isso foi solicitado adicionar letras minúsculas ao arquivo **font.h**.
 
 As letras minusculas foram criadas em um arquivo de edição como na figura abaixo e depois o número de pixel ativos dentro da região de 8x8 pixels foi convertido para um número hexadecimal equivalente a cada coluna.
 
@@ -166,3 +166,5 @@ Sempre que um botão for apertado ou um caractere for lido na porta serial a inf
 Para entrar em modo bootsel basta apertar o botão do joystick.
 
 ## Vídeo
+
+Link para o vídeo demonstrando o projeto em execução: https://drive.google.com/file/d/1fd0wUsbY6c2zTfCEolXltVk1A1mZLqeQ/view?usp=sharing
