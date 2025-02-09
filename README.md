@@ -40,17 +40,87 @@ Funcionalidades do projeto
 
 Na figura abaixo está representado o diagrama do circuito montado no simulador wokwi, nela estão presentes os perifericos utilizados neste projeto junto ao microcontrolador raspberry pi pico w
 
+![Diagrama do circuito Implementado no wokwi](https://github.com/ALrEcompUefs/Tarefa_comunicacao_serial/blob/main/img/img1.png?raw=true "Diagrama do circuito")
 
 ## Display oled i2c
 
+Utilizando a biblioteca  **ssd1306** disponibilizada para o projeto é possível utilzar o display oled presente na placa bitdoglab para exibir textos com fonte maiúsculas por isso foi solicitado adicionar letras minúsculas ao arquivo **font.h**. 
+
+As letras minusculas foram criadas em um arquivo de edição como na figura abaixo e depois o número de pixel ativos dentro da região de 8x8 pixels foi convertido para um número hexadecimal equivalente a cada coluna.
+
+![img](https://github.com/ALrEcompUefs/Tarefa_comunicacao_serial/blob/main/img/img2.png?raw=true "Criação das fontes")
+
+A partir dos números hexadecimais equivalantes a cada letra o arquivo font.h foi atualizado com as novas letras como segue no exemplo abaixo.
+
+```c
+0x00, 0x38, 0x44, 0x44, 0x028, 0x7C,0x00, 0x00, //a
+0x00, 0x7F, 0x28, 0x44, 0x44, 0x38, 0x00, 0x00, //b
+0x00, 0x38, 0x44, 0x44, 0x44, 0x44, 0x00, 0x00, //c
+0x00, 0x38, 0x44, 0x44, 0x28, 0x7F, 0x00, 0x00, //d
+0x00, 0x38, 0x54, 0x54, 0x54, 0x58, 0x00, 0x00, //e
+0x00, 0x00, 0x04, 0x7F, 0x05, 0x00, 0x00, 0x00, //f
+0x00, 0x0E, 0x51, 0x51, 0x4A, 0x3F, 0x00, 0x00, //g
+0x00, 0x7F, 0x08, 0x04, 0x04, 0x78, 0x00, 0x00, //h
+```
+
+A bibllioteca ssd1306 teve uma atualização na função **ssd1306_draw_char** para reconhecer as letras minúsculas
+
+```c
+else if (c >='a' && c <='z'){
+    index = (c - 'a' + 37) * 8; // Para letras minúsculas
+  }
+```
+
+Este trecho de codígo calcula o indice da letra no vetor de fonte com base no valor ASCII e na primeira posição dentro do vetor.
+
+As operações com o display oled utilizam as funções da biblioteca disponibilizada e da biblioteca **hardware/i2**c que possibilita a comunicação serial i2c no raspberry pi pico w. No código são definidos os pinos de comunicação i2c do pico w que são os pinos 14(SDA) e 15(SCL) além do endereço do display oled que é o **0x3C.**
 
 ## Matriz de Led
 
+A Matriz de leds RGB WS2812 é utilizada para exibir números de 0 a 9 quando são lidos na entrada serial.
+
+Para utilizar a matriz foi utilizada a biblioteca definifa pelo usúario ws2812, nela as funçãos básicas para inicialização e desenho da matriz são implementadas bastando realizar a chamada destas funções.
+
+Para inicializar a matriz e a exibição de núemros deve ser feita a seguinte rotina
+
+```
+// Variavéis globais para desenho da matriz
+PIO pio;
+uint sm;
+// incializa PIO para utilizar matriz de leds
+    pio = pio0;
+    sm = configurar_matriz(pio);
+    configurar_numero();
+
+```
+
+Para desenhar números na matriz e apaga-la usa-se as funções ` imprimir_numero(valor,pio,sm);` e `  apagar_matriz(pio,sm);.`
 
 ## UART
 
+Para a entrada de dados pelo computador foi utilizada a UART e o monitor serial para leitura dos caracteres enviados
+
+```c
+// se a conexão usb está garantida
+        if(stdio_usb_connected){
+            // leitura do caractere da fila
+            if (scanf("%c\n",&msg)==1){
+                atualizar_matriz(msg);
+                printf("Caractere recebido:%c\n",msg);
+            }
+        }
+```
+
+Os dados recebidos via monitor serial são exibidos no monitor e tamém no display oled
 
 ## Entrada dos botões
 
+Os três botões presentes na placa bitdoglab foram utilizados no projeto, todos foram configurados como pinos de entrada em modo pull-up no pico w e a leitura do botão é feita com uma rotina de interrupção para borda de descida.
+
+Um debouncer foi implementado dentro da rotina de interrupção para minimizar os efeitos de ruído no projeto.
+
+Foram declaradas duas variáveis globais com modificador **static volatile** para o controle das leds: **led_g_on** e **led_b_on** cada vez que um botão é apertado o estado da led que ele está controlando é trocado pelo operador de negação **!** e a função **set_rgb(**) atualiza o estado da led.
+
+Para facilitar o desenvolvimento na placa bitdoglab o botão do módulo joystick no pio 22 é utilizado para ativar o modo bootsel.
 
 ## Vídeo
